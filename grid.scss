@@ -1,0 +1,96 @@
+// - - - VARIABLES - - - //
+
+$column-count: 4 !default; // the number of columns
+$gutter: 10px !default; // width of the gutter on each side of a column
+$row-height: 4px !default; // height of each row
+$type-ratio: .625 !default; // the ratio 10px to 1em at the default font size
+$default-media-property: min-width !default; // default @media property
+
+$queries: (
+    "small": (480px, $column-count * 2),
+    "medium": (720px, $column-count * 3),
+    "large": (960px, $column-count * 3)
+);
+
+// - - - FUNCTIONS - - - //
+
+// given a number of rows, return the equivalent height in pixels
+@function grid-rows ($rows: 1) {
+    @return $rows * $row-height;
+}
+
+// given a number of columns, return the equivalent vw width
+@function grid-columns ($columns: 1) {
+    @return ($columns / $column-count) * 100vw;
+}
+
+// converts a number of pixels to rem, with an optional custom suffix (mostly for using em with media queries)
+@function rem ($pixels: 10, $suffix: rem) {
+    @return ($pixels / 10px) + $suffix;
+}
+
+// - - - MIXINS - - - //
+
+// converts a property and value in pixels to rem, with a pixel fallback
+@mixin rem ($property, $pixels) {
+    $rem: ();
+    @if type-of($pixels) == "number" {
+        $rem: rem($pixels);
+    } @else {
+        @each $value in $pixels {
+
+            @if $value == 0 {
+                $rem: append($rem, $value);
+            } @else {
+                $rem: append($rem, rem($value));
+            }
+
+        }
+    }
+
+    #{$property}: $pixels;
+    #{$property}: $rem;
+}
+
+// allows for inline media queries set to a given number of columns
+@mixin media ($query: $feature $value, $columns: $column-count) {
+
+    $default-column-count: $column-count;
+    $column-count: $columns;
+
+    $media-query: "screen and ";
+    @if length($query) == 1 {
+        $media-query: $media-query + "(" + $default-media-property + ": " + rem(nth($query, 1) * $type-ratio, em) + ")";
+    } @else {
+        $i: 1;
+        @while $i <= length($query) {
+            $media-query: $media-query + "(" + nth($query, $i) + ": " + rem(nth($query, $i + 1) * $type-ratio, em) + ") ";
+
+            @if ($i + 1) != $length($query) {
+                $media-query: $media-query + "and ";
+            }
+
+            $i: $i + 2;
+        }
+    }
+
+    @media #{$media-query} {
+        @content;
+    }
+
+    $column-count: $default-column-count;
+}
+
+// maps each breakpoint width and column count to a media query
+@mixin breakpoint ($size) {
+    $breakpoint: map-get($queries, $size);
+
+    @include media(nth($breakpoint, 1), nth($breakpoint, 2)) {
+        @content;
+    };
+}
+
+// - - - STYLES - - - //
+
+*, *:before, *:after { box-sizing: border-box; }
+html { font-size: $type-ratio * 100%; }
