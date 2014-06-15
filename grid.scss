@@ -15,12 +15,12 @@ $queries: (
 // - - - FUNCTIONS - - - //
 
 // given a number of rows, return the equivalent height in pixels
-@function grid-rows ($rows: 1) {
+@function rows ($rows: 1) {
     @return $rows * $row-height;
 }
 
 // given a number of columns, return the equivalent vw width
-@function grid-columns ($columns: 1) {
+@function columns ($columns: 1) {
     @return ($columns / $column-count) * 100vw;
 }
 
