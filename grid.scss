@@ -10,7 +10,7 @@ $queries: (
     "small": (480px, $column-count * 2),
     "medium": (720px, $column-count * 3),
     "large": (960px, $column-count * 3)
-);
+) !default;
 
 // - - - FUNCTIONS - - - //
 
